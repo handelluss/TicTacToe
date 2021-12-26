@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TicTacToe</string>
+    <string name="nameOfGameText">Крестики-Нолики</string>
+    <string name="twoPlayersButtonText">Играть</string>
+    <string name="scoreText">Счёт</string>
+    <string name="drawText">Ничья</string>
+    <string name="firstWonText">Первый победил</string>
+    <string name="secondWonText">Второй победил</string>
+    <string name="onePlayerActivityText">В далёком будущем</string>
+</resources>

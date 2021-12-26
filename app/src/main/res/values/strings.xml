@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">TicTacToe</string>
+    <string name="nameOfGameText">Tic Tac Toe</string>
+    <string name="twoPlayersButtonText">Play</string>
+    <string name="scoreText">Score</string>
+    <string name="drawText">DRAW</string>
+    <string name="firstWonText">FIRST WON</string>
+    <string name="secondWonText">SECOND WON</string>
+    <string name="cellEmpty" translatable="false"> </string>
+    <string name="cellX" translatable="false">X</string>
+    <string name="cellY" translatable="false">Y</string>
+    <string name="onePlayerActivityText">In the long future</string>
+</resources>

@@ -51,14 +51,8 @@ public class Controller {
     public int getSecondPlayerScore() {
         return player2.getWinCount();
     }
-    public boolean isPlaying() {
-        return gameStatus == GameStatus.PLAYING;
-    }
     public GameStatus getGameStatus(){
         return gameStatus;
-    }
-    public boolean isWin() {
-        return gameStatus == GameStatus.FIRST_WON || gameStatus == GameStatus.SECOND_WON;
     }
 
     public void move(int row, int col){

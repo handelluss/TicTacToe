@@ -4,20 +4,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.handelluss.tictactoegame.game.Controller;
+import com.handelluss.tictactoegame.game.GameStatus;
 
 public class TwoPlayersActivity extends AppCompatActivity {
 
-    Button[][] buttons;
-    TextView scoreFirstPlayer;
-    TextView scoreSecondPlayer;
-    TextView winTextView;
-    Controller controller;
-    int fieldSize;
+    private Button[][] buttons;
+    private TextView scoreFirstPlayer;
+    private TextView scoreSecondPlayer;
+    private TextView winTextView;
+    private Controller controller;
+    private int fieldSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +34,8 @@ public class TwoPlayersActivity extends AppCompatActivity {
         scoreFirstPlayer = findViewById(R.id.scoreFirstPlayer);
         scoreSecondPlayer = findViewById(R.id.scoreSecondPlayer);
         winTextView = findViewById(R.id.winTextView);
+        initListeners();
     }
-
     private void initButtons(){
         buttons[0][0] = findViewById(R.id.buttonX0Y0);
         buttons[0][1] = findViewById(R.id.buttonX0Y1);
@@ -47,60 +47,60 @@ public class TwoPlayersActivity extends AppCompatActivity {
         buttons[2][1] = findViewById(R.id.buttonX2Y1);
         buttons[2][2] = findViewById(R.id.buttonX2Y2);
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void initListeners(){
         for(int i = 0; i < fieldSize; i++){
             for(int j = 0; j < fieldSize; j++){
-                int cellX = i;
-                int cellY = j;
-                buttons[i][j].setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        makeMove(cellX, cellY);
-                    }
+                int row = i;
+                int col = j;
+                buttons[i][j].setOnClickListener(view -> {
+                    if(isCellEmpty(row, col))
+                        makeMove(row, col);
                 });
             }
         }
     }
-    private void makeMove(int cellX, int cellY){
-        if(!winTextView.getText().equals(R.string.cellEmpty)){
-            winTextView.setText(R.string.cellEmpty);
-        }
-        if(controller.isCellEmpty(cellX, cellY)){
-            controller.move(cellX, cellY);
-            buttons[cellX][cellY].setText(controller.getStringLastMoveValue());
-            if(!controller.isPlaying()){
-                resetActivityField();
-            }
+    
+    private void makeMove(int row, int col){
+        setStatusTextView();
+
+        buttons[row][col].setText(controller.getSign());
+        controller.move(row, col);
+        if(controller.getGameStatus() != GameStatus.PLAYING){
+            controller.reset();
+            resetActivityField();
         }
     }
+
+    private void setStatusTextView(){
+        if(!winTextView.getText().equals(getString(R.string.cellEmpty))){
+            winTextView.setText(R.string.cellEmpty);
+        }
+    }
+
     private void resetActivityField(){
         for(int i = 0; i < fieldSize; i++){
             for(int j = 0; j < fieldSize; j++){
-                buttons[i][j].setText(" ");
+                buttons[i][j].setText(R.string.cellEmpty);
             }
         }
         winTextView.setText(getWinnerTextView());
-        scoreFirstPlayer.setText(Integer.toString(controller.getScoreFirstPlayer()));
-        scoreSecondPlayer.setText(Integer.toString(controller.getScoreSecondPlayer()));
+        scoreFirstPlayer.setText(Integer.toString(controller.getFirstPlayerScore()));
+        scoreSecondPlayer.setText(Integer.toString(controller.getSecondPlayerScore()));
     }
-    private int getWinnerTextView(){
-        if(controller.isWin()){
-            switch (controller.getStringLastMoveValue()){
-                case "X":
-                    return R.string.firstWonText;
-                case "O":
-                    return R.string.secondWonText;
-                default:
-                    Log.e("winTextViewError", "default case happened");
-                    return -1;
-            }
-        }
-        else{
-            return R.string.drawText;
-        }
 
+    private int getWinnerTextView(){
+        GameStatus gameStatus = controller.getGameStatus();
+
+        if (gameStatus == GameStatus.FIRST_WON)
+            return R.string.firstWonText;
+        else if (gameStatus == GameStatus.SECOND_WON)
+            return R.string.secondWonText;
+        else
+            return R.string.drawText;
     }
+
+    private boolean isCellEmpty(int row, int col){
+        return buttons[row][col].getText().equals(getString(R.string.cellEmpty));
+    }
+    
 }

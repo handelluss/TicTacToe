@@ -2,88 +2,123 @@ package com.handelluss.tictactoegame.game;
 
 public class Controller {
 
-    /*
-        First player is X
-        Second player is O
-    */
+    private class Player {
 
-    private int scoreFirstPlayer;
-    private int scoreSecondPlayer;
-    private int moveCounter;
-    private boolean isPlaying;
-    private boolean isWin;
-    private Cell lastMoveValue;
-    private Field field;
+        private int score = 0;
+        private final String number; // "first" or "second"
+
+        Player(String number){
+                this.number = number;
+        }
+
+        private int getWinCount(){
+            return score;
+        }
+        private void hasWon(){
+            score++;
+        }
+    }
+
+    private final Player player1;
+    private final Player player2;
+
+    private String startMovingPlayer;
+    private String currentMovingPlayer;
+    private Field.Cell currentSign;
+
+    private final Field field;
+    private GameStatus gameStatus;
 
     public Controller(){
+        player1 = new Player("first");
+        player2 = new Player("second");
+        startMovingPlayer = player1.number;
+        currentMovingPlayer = startMovingPlayer;
+        currentSign = Field.Cell.X;
+        gameStatus = GameStatus.PLAYING;
         field = new Field();
-        scoreFirstPlayer = 0;
-        scoreSecondPlayer = 0;
-        moveCounter = 0;
-        lastMoveValue = null;
-        isPlaying = true;
     }
 
     public int getFieldSize(){
         return field.FIELD_SIZE;
     }
-    public String getStringLastMoveValue() {
-        return Cell.toString(lastMoveValue);
+    public String getSign() {
+        return Field.Cell.toString(currentSign);
     }
-    public int getScoreFirstPlayer() {
-        return scoreFirstPlayer;
+    public int getFirstPlayerScore() {
+        return player1.getWinCount();
     }
-    public int getScoreSecondPlayer() {
-        return scoreSecondPlayer;
-    }
-    public boolean isCellEmpty(int cellX, int cellY){
-        return field.isCellEmpty(cellX, cellY);
+    public int getSecondPlayerScore() {
+        return player2.getWinCount();
     }
     public boolean isPlaying() {
-        return isPlaying;
+        return gameStatus == GameStatus.PLAYING;
+    }
+    public GameStatus getGameStatus(){
+        return gameStatus;
     }
     public boolean isWin() {
-        return isWin;
+        return gameStatus == GameStatus.FIRST_WON || gameStatus == GameStatus.SECOND_WON;
     }
 
-    public void move(int cellX, int cellY){
-        Cell moveValue = getMoveValue();
-        field.setCell(cellX, cellY, moveValue);
-        moveCounter++;
-        isWin = field.hasFoundLines();
-        if(moveCounter == 9 || isWin){
-            isPlaying = false;
-            moveCounter = 0;
-            if(isWin){
-                changeScore();
+    public void move(int row, int col){
+        field.setCell(row, col, currentSign);
+
+        boolean drawFlag = field.isFull();
+        boolean winFlag = field.hasFoundLines();
+
+        if(winFlag){
+            if(currentMovingPlayer.equals(player1.number)){
+                gameStatus = GameStatus.FIRST_WON;
+                player1.hasWon();
             }
-            field.resetField();
+            else { // player2.number
+                gameStatus = GameStatus.SECOND_WON;
+                player2.hasWon();
+            }
+        }
+        else if(drawFlag){
+            gameStatus = GameStatus.DRAW;
         }
         else{
-            isWin = false;
-            isPlaying = true;
+            swapCurrentMovingPlayer();
+            swapCurrentSign();
         }
     }
-    private Cell getMoveValue(){
-        if(lastMoveValue == Cell.O || lastMoveValue == null){
-            lastMoveValue = Cell.X;
-            return Cell.X;
-        }
-        else{
-            lastMoveValue = Cell.O;
-            return Cell.O;
-        }
+
+    public void reset(){
+        field.resetField();
+        swapStartMovingPlayer();
+        setStartCurrentSign();
+        setGameStatus();
     }
-    private void changeScore(){
-        switch(lastMoveValue){
-            case X:
-                scoreFirstPlayer += 1;
-                break;
-            case O:
-                scoreSecondPlayer += 1;
-                break;
-            default:
-                break;
+
+    private void swapCurrentMovingPlayer(){
+        if(currentMovingPlayer.equals(player1.number))
+            currentMovingPlayer = player2.number;
+        else
+            currentMovingPlayer = player1.number;
+    }
+    private void swapStartMovingPlayer(){
+        if (startMovingPlayer.equals(player1.number)) {
+            startMovingPlayer = player2.number;
         }
+        else {
+            startMovingPlayer = player1.number;
+        }
+        currentMovingPlayer = startMovingPlayer;
+
+    }
+    private void swapCurrentSign(){
+        if(currentSign == Field.Cell.X)
+            currentSign = Field.Cell.O;
+        else
+            currentSign = Field.Cell.X;
+    }
+    private void setStartCurrentSign(){
+        currentSign = Field.Cell.X;
+    }
+    private void setGameStatus(){
+        gameStatus = GameStatus.PLAYING;
     }
 }
